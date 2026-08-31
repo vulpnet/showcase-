@@ -16,7 +16,7 @@ export default function ContactForm({ services, defaultServiceSlug, defaultEmail
   const [errorMsg, setErrorMsg] = useState('');
   const [submittedName, setSubmittedName] = useState('');
 
-  const CONTACT_EMAIL = 'tai.huynh@dmspro.vn';
+  const CONTACT_EMAIL = 'vulp.net@gmail.com';
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
