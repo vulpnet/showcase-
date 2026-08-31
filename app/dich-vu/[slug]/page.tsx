@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import type { Service, PricingPlan } from '@/lib/types';
+import type { Service, PricingPlan, CaseStudy, Faq } from '@/lib/types';
 
 export const revalidate = 60;
 
@@ -22,13 +22,25 @@ export default async function ServiceDetailPage({
 
   if (!service) notFound();
 
-  const { data: plans } = await supabase
-    .from('pricing_plans')
-    .select('*')
-    .eq('service_id', (service as Service).id)
-    .order('sort_order');
-
   const s = service as Service;
+
+  // Lấy song song bảng giá, dự án tiêu biểu và FAQ để giảm thời gian chờ
+  const [{ data: plans }, { data: cases }, { data: faqs }] = await Promise.all([
+    supabase.from('pricing_plans').select('*').eq('service_id', s.id).order('sort_order'),
+    supabase
+      .from('case_studies')
+      .select('*')
+      .eq('service_id', s.id)
+      .eq('is_published', true)
+      .order('sort_order'),
+    // FAQ của riêng dịch vụ này + FAQ chung (service_id null)
+    supabase
+      .from('faqs')
+      .select('*')
+      .or(`service_id.eq.${s.id},service_id.is.null`)
+      .eq('is_published', true)
+      .order('sort_order'),
+  ]);
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
@@ -99,6 +111,80 @@ export default async function ServiceDetailPage({
                   Đăng ký tư vấn
                 </Link>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {cases && cases.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Dự án tiêu biểu</h2>
+          <div className="mt-6 space-y-6">
+            {(cases as CaseStudy[]).map((c) => (
+              <article
+                key={c.id}
+                className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
+              >
+                {c.industry && (
+                  <span className="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    {c.industry}
+                  </span>
+                )}
+                <h3 className="mt-3 text-lg font-semibold text-slate-900 dark:text-white">
+                  {c.title}
+                </h3>
+
+                <dl className="mt-4 space-y-3 text-sm">
+                  {c.challenge && (
+                    <div>
+                      <dt className="font-semibold text-slate-900 dark:text-white">Vấn đề</dt>
+                      <dd className="mt-1 text-slate-700 dark:text-slate-300">{c.challenge}</dd>
+                    </div>
+                  )}
+                  {c.solution && (
+                    <div>
+                      <dt className="font-semibold text-slate-900 dark:text-white">Cách giải quyết</dt>
+                      <dd className="mt-1 text-slate-700 dark:text-slate-300">{c.solution}</dd>
+                    </div>
+                  )}
+                  {c.result && (
+                    <div>
+                      <dt className="font-semibold text-slate-900 dark:text-white">Kết quả</dt>
+                      <dd className="mt-1 text-slate-700 dark:text-slate-300">{c.result}</dd>
+                    </div>
+                  )}
+                </dl>
+
+                {c.metrics?.length > 0 && (
+                  <div className="mt-5 grid gap-4 border-t border-slate-200 pt-5 sm:grid-cols-3 dark:border-slate-800">
+                    {c.metrics.map((m, i) => (
+                      <div key={i}>
+                        <div className="text-lg font-bold text-blue-600">{m.value}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{m.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {faqs && faqs.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Câu hỏi thường gặp</h2>
+          <div className="mt-6 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
+            {(faqs as Faq[]).map((f) => (
+              <details key={f.id} className="group p-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-slate-900 dark:text-white">
+                  <span>{f.question}</span>
+                  <span className="shrink-0 text-slate-400 transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                  {f.answer}
+                </p>
+              </details>
             ))}
           </div>
         </div>

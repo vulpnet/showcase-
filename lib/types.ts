@@ -45,6 +45,36 @@ export type Lead = {
   created_at: string;
 };
 
+export type CaseStudyMetric = {
+  label: string;
+  value: string;
+};
+
+export type CaseStudy = {
+  id: string;
+  service_id: string | null;
+  slug: string;
+  title: string;
+  industry: string | null;
+  challenge: string | null;
+  solution: string | null;
+  result: string | null;
+  metrics: CaseStudyMetric[];
+  cover_image_url: string | null;
+  is_published: boolean;
+  sort_order: number;
+  created_at: string;
+};
+
+export type Faq = {
+  id: string;
+  service_id: string | null;
+  question: string;
+  answer: string;
+  is_published: boolean;
+  sort_order: number;
+};
+
 export type Profile = {
   id: string;
   full_name: string | null;
