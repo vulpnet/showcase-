@@ -14,6 +14,9 @@ type Props = {
 export default function ContactForm({ services, defaultServiceSlug, defaultEmail, planName }: Props) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [submittedName, setSubmittedName] = useState('');
+
+  const CONTACT_EMAIL = 'tai.huynh@dmspro.vn';
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,6 +29,7 @@ export default function ContactForm({ services, defaultServiceSlug, defaultEmail
 
     const serviceId = (form.get('service_id') as string) || null;
     const messageBase = (form.get('message') as string) || '';
+    setSubmittedName((form.get('company') as string) || (form.get('name') as string) || '');
     // Ghi kèm tên gói vào nội dung để admin biết khách quan tâm gói nào mà không cần thêm cột riêng
     const message = planName ? `[Gói: ${planName}] ${messageBase}` : messageBase;
 
@@ -47,6 +51,10 @@ export default function ContactForm({ services, defaultServiceSlug, defaultEmail
     setStatus('sent');
   }
 
+  // Gói miễn phí (Khảo sát/Rà soát/Thử nghiệm) cần khách gửi kèm file dữ liệu mẫu
+  // qua email — web chưa có chỗ tải file lên nên hướng dẫn rõ để khách gửi đúng chỗ
+  const isFreeTrial = planName != null && /^(Khảo sát|Rà soát nhanh|Thử nghiệm)$/.test(planName);
+
   if (status === 'sent') {
     return (
       <div className="mt-8 rounded-xl border border-green-300 bg-green-50 p-8 text-center dark:border-green-800 dark:bg-green-950">
@@ -57,6 +65,20 @@ export default function ContactForm({ services, defaultServiceSlug, defaultEmail
         <p className="mt-2 text-green-700 dark:text-green-300">
           Cảm ơn bạn đã quan tâm. Chúng tôi sẽ liên hệ sớm nhất có thể.
         </p>
+
+        {isFreeTrial && (
+          <div className="mt-6 rounded-lg border border-green-300 bg-white p-5 text-left dark:border-green-800 dark:bg-slate-900">
+            <p className="font-semibold text-slate-900 dark:text-white">
+              Để chúng tôi bắt đầu ngay, vui lòng gửi kèm dữ liệu mẫu qua email:
+            </p>
+            <p className="mt-2 text-lg font-bold text-blue-600">{CONTACT_EMAIL}</p>
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+              Tiêu đề mail ghi rõ: <b>&quot;{planName} — {submittedName || 'Tên công ty'}&quot;</b>. Đính
+              kèm 1 file Excel/CSV mẫu (có thể ẩn tên khách hàng nếu cần bảo mật). Chúng tôi phản hồi
+              kết quả trong 2-3 ngày làm việc.
+            </p>
+          </div>
+        )}
       </div>
     );
   }
@@ -66,6 +88,13 @@ export default function ContactForm({ services, defaultServiceSlug, defaultEmail
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      {isFreeTrial && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
+          Sau khi gửi form này, bạn gửi thêm 1 file dữ liệu mẫu (Excel/CSV) qua email —
+          chúng tôi sẽ hiện địa chỉ email cụ thể ở bước tiếp theo.
+        </div>
+      )}
+
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
           Họ tên <span className="text-red-500">*</span>
