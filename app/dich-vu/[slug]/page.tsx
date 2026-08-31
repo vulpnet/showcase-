@@ -80,12 +80,23 @@ export default async function ServiceDetailPage({
             </p>
           )}
 
-          <Link
-            href={`/lien-he?service=${s.slug}`}
-            className="mt-7 inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700"
-          >
-            Nhận tư vấn miễn phí
-          </Link>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link
+              href={`/lien-he?service=${s.slug}`}
+              className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700"
+            >
+              Nhận tư vấn miễn phí
+            </Link>
+            {/* Nút xem demo — chỉ hiện cho dịch vụ đã có bản demo tương tác dựng sẵn */}
+            {s.slug === 'san-pham-dms-logistics' && (
+              <Link
+                href="/san-pham/dms-dashboard"
+                className="inline-block rounded-lg border border-blue-600 px-6 py-3 font-semibold text-blue-600 transition hover:bg-blue-50 dark:hover:bg-blue-950"
+              >
+                Xem demo trực tiếp →
+              </Link>
+            )}
+          </div>
         </div>
       </section>
 
