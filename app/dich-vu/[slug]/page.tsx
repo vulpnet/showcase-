@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { Markdown } from '@/app/Markdown';
 import type { Service, PricingPlan, CaseStudy, Faq } from '@/lib/types';
 
 export const revalidate = 60;
@@ -43,36 +44,60 @@ export default async function ServiceDetailPage({
   ]);
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
-      <Link href="/" className="text-sm text-blue-600 hover:underline">
-        ← Về trang chủ
-      </Link>
+    <div>
+      {/* Hero — nền gradient tách bạch phần mở đầu với nội dung bên dưới */}
+      <section className="border-b border-slate-200 bg-gradient-to-b from-blue-50 to-white dark:border-slate-800 dark:from-slate-900 dark:to-slate-950">
+        <div className="mx-auto max-w-5xl px-6 py-14">
+          <Link
+            href="/"
+            className="text-sm text-slate-500 transition hover:text-blue-600 dark:text-slate-400"
+          >
+            ← Về trang chủ
+          </Link>
 
-      <h1 className="mt-6 text-3xl font-bold text-slate-900 dark:text-white">{s.title}</h1>
-      {s.summary && <p className="mt-3 text-lg text-slate-600 dark:text-slate-400">{s.summary}</p>}
+          <h1 className="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+            {s.title}
+          </h1>
+          {s.summary && (
+            <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-600 dark:text-slate-300">
+              {s.summary}
+            </p>
+          )}
 
-      {s.benefits?.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Lợi ích chính</h2>
-          <ul className="mt-3 space-y-2">
-            {s.benefits.map((b, i) => (
-              <li key={i} className="flex gap-3 text-slate-700 dark:text-slate-300">
-                <span className="text-green-600">✓</span>
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
+          <Link
+            href={`/lien-he?service=${s.slug}`}
+            className="mt-7 inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          >
+            Nhận tư vấn miễn phí
+          </Link>
         </div>
-      )}
+      </section>
 
-      {s.description && (
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Chi tiết</h2>
-          <div className="mt-3 whitespace-pre-wrap text-slate-700 dark:text-slate-300">
-            {s.description}
+      <div className="mx-auto max-w-5xl px-6 py-12">
+        {s.benefits?.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Lợi ích chính</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {s.benefits.map((b, i) => (
+                <div
+                  key={i}
+                  className="flex gap-3 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
+                >
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700 dark:bg-green-900/40 dark:text-green-400">
+                    ✓
+                  </span>
+                  <span className="text-slate-700 dark:text-slate-300">{b}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {s.description && (
+          <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-900">
+            <Markdown content={s.description} />
+          </div>
+        )}
 
       {plans && plans.length > 0 && (
         <div className="mt-12">
@@ -190,16 +215,19 @@ export default async function ServiceDetailPage({
         </div>
       )}
 
-      <div className="mt-12 rounded-xl border border-slate-200 bg-slate-50 p-8 text-center dark:border-slate-800 dark:bg-slate-900">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-          Quan tâm đến giải pháp này?
-        </h3>
-        <Link
-          href={`/lien-he?service=${s.slug}`}
-          className="mt-4 inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
-        >
-          Liên hệ tư vấn miễn phí
-        </Link>
+        <div className="mt-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-10 text-center shadow-lg">
+          <h3 className="text-2xl font-bold text-white">Quan tâm đến giải pháp này?</h3>
+          <p className="mx-auto mt-3 max-w-xl text-blue-100">
+            Buổi khảo sát đầu tiên hoàn toàn miễn phí. Chúng tôi đánh giá hiện trạng và đề xuất
+            phương án cụ thể trước khi bạn quyết định.
+          </p>
+          <Link
+            href={`/lien-he?service=${s.slug}`}
+            className="mt-6 inline-block rounded-lg bg-white px-7 py-3 font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50"
+          >
+            Liên hệ tư vấn miễn phí
+          </Link>
+        </div>
       </div>
     </div>
   );
