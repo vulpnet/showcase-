@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import type { Service, Client } from '@/lib/types';
 
-// Revalidate mỗi 60s — nội dung ít đổi nên cache để giảm số lần gọi Supabase (tiết kiệm free tier)
-export const revalidate = 60;
+// Lưu tạm 5 phút — nội dung ít đổi nên cache để trang mở nhanh và giảm số lần gọi Supabase
+export const revalidate = 300;
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -67,6 +67,7 @@ export default async function HomePage() {
               <Link
                 key={s.id}
                 href={`/dich-vu/${s.slug}`}
+                prefetch
                 className="group rounded-xl border border-slate-200 bg-white p-6 transition hover:border-blue-400 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
               >
                 <h3 className="text-lg font-semibold text-slate-900 group-hover:text-blue-600 dark:text-white">

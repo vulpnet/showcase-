@@ -43,7 +43,11 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Bỏ qua file tĩnh và ảnh để không tốn thời gian xử lý thừa
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Chỉ chạy trên các trang thật sự cần biết trạng thái đăng nhập.
+    // Trang công khai (/, /dich-vu/*, /lien-he) bỏ qua proxy để không phải
+    // chờ một lượt gọi Supabase mỗi lần chuyển trang — đây là nguyên nhân
+    // chính khiến điều hướng bị chậm.
+    '/admin/:path*',
+    '/dang-nhap',
   ],
 };

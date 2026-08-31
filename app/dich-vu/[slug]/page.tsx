@@ -1,11 +1,26 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import { Markdown } from '@/app/Markdown';
 import { PricingTabs } from '@/app/PricingTabs';
 import type { Service, PricingPlan, CaseStudy, Faq } from '@/lib/types';
 
-export const revalidate = 60;
+// Lưu tạm 5 phút — nội dung dịch vụ ít thay đổi, đổi lại trang mở gần như tức thì
+export const revalidate = 300;
+
+// Tạo sẵn trang cho mọi dịch vụ ngay lúc build → khách vào là có ngay,
+// không phải chờ máy chủ dựng trang lần đầu
+export async function generateStaticParams() {
+  // Dùng client không cookie: hàm này chạy lúc build, chưa có request nào nên
+  // không đọc được cookie. Chỉ cần đọc dữ liệu công khai nên anon key là đủ.
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data } = await supabase.from('services').select('slug').eq('is_published', true);
+  return (data ?? []).map((s: { slug: string }) => ({ slug: s.slug }));
+}
 
 export default async function ServiceDetailPage({
   params,
