@@ -28,13 +28,8 @@ export default function Header() {
         >
           Liên hệ
         </Link>
-        <Link
-          href="/cong-dong"
-          className="text-sm text-slate-600 transition hover:text-blue-600 dark:text-slate-400"
-          prefetch
-        >
-          Cộng đồng
-        </Link>
+        {/* Mục Cộng đồng tạm ẩn khỏi menu — code và database vẫn giữ nguyên,
+            chỉ không hiển thị công khai cho tới khi cần dùng lại */}
 
         <div className="ml-auto flex items-center gap-4">
           {/* Ô giữ chỗ cùng chiều cao để thanh điều hướng không bị giật khi tải xong */}

@@ -131,12 +131,7 @@ function LoginForm() {
         </button>
       </p>
 
-      <p className="mt-3 text-center text-xs text-slate-500">
-        Muốn đăng dịch vụ để bán trong khu vực cộng đồng?{' '}
-        <Link href="/tro-thanh-nguoi-ban" className="font-medium text-blue-600 hover:underline">
-          Đăng ký làm người bán
-        </Link>
-      </p>
+      {/* Link đăng ký người bán tạm ẩn cùng với mục Cộng đồng trong menu */}
     </div>
   );
 }
