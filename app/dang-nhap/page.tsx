@@ -130,6 +130,13 @@ function LoginForm() {
           {mode === 'login' ? 'Đăng ký ngay' : 'Đăng nhập'}
         </button>
       </p>
+
+      <p className="mt-3 text-center text-xs text-slate-500">
+        Muốn đăng dịch vụ để bán trong khu vực cộng đồng?{' '}
+        <Link href="/tro-thanh-nguoi-ban" className="font-medium text-blue-600 hover:underline">
+          Đăng ký làm người bán
+        </Link>
+      </p>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import type { Lead, Profile } from '@/lib/types';
+import ModerationActions from './ModerationActions';
+import type { CommunityListing, CommunitySellerProfile, Lead, Profile } from '@/lib/types';
 
 export const dynamic = 'force-dynamic'; // admin luôn xem dữ liệu mới nhất, không cache
 
@@ -43,6 +44,12 @@ export default async function AdminPage() {
     .select('*, services(title)')
     .order('created_at', { ascending: false })
     .limit(100);
+
+  const { data: pendingListings } = await supabase
+    .from('community_listings')
+    .select('*, community_seller_profiles(display_name, contact_email)')
+    .eq('status', 'pending')
+    .order('created_at');
 
   const statusLabel: Record<string, string> = {
     new: 'Mới',
@@ -116,6 +123,45 @@ export default async function AdminPage() {
           </table>
         </div>
       )}
+
+      {/* Duyệt dịch vụ cộng đồng — khu vực nhiều người bán khác đăng dịch vụ,
+          tách biệt với các dịch vụ chính (services) do bạn quản lý */}
+      <div className="mt-16 border-t border-slate-200 pt-10 dark:border-slate-800">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+          Cộng đồng — Duyệt dịch vụ ({pendingListings?.length ?? 0} chờ duyệt)
+        </h2>
+        {!pendingListings?.length ? (
+          <p className="mt-4 rounded-lg border border-dashed border-slate-300 p-8 text-center text-slate-500 dark:border-slate-700">
+            Không có dịch vụ nào đang chờ duyệt.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {(
+              pendingListings as (CommunityListing & {
+                community_seller_profiles: Pick<CommunitySellerProfile, 'display_name' | 'contact_email'>;
+              })[]
+            ).map((l) => (
+              <div
+                key={l.id}
+                className="rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900 dark:bg-amber-950/30"
+              >
+                <h3 className="font-semibold text-slate-900 dark:text-white">{l.title}</h3>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                  Người bán: {l.community_seller_profiles.display_name} ·{' '}
+                  {l.community_seller_profiles.contact_email}
+                </p>
+                {l.summary && <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">{l.summary}</p>}
+                {l.description && (
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600 dark:text-slate-400">
+                    {l.description}
+                  </p>
+                )}
+                <ModerationActions listingId={l.id} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -25,6 +25,10 @@ Không cần tự viết API — Supabase tự sinh REST API từ schema, bảo 
 1. Trong Supabase Dashboard → **SQL Editor** → **New query**
 2. Copy toàn bộ nội dung file `supabase/schema.sql` vào rồi bấm **Run**
 3. Schema sẽ tạo các bảng: `profiles`, `services`, `pricing_plans`, `clients`, `leads` + RLS policies + dữ liệu mẫu
+4. Chạy tiếp `supabase/merge-marketplace.sql` để bật khu vực **cộng đồng** (marketplace nhiều
+   người bán) — tạo thêm `community_categories`, `community_seller_profiles`,
+   `community_listings`, `community_trial_requests`, và mở rộng `profiles.role` để nhận thêm
+   giá trị `seller`
 
 ### 3. Lấy API keys
 1. Supabase Dashboard → **Project Settings** → **API**
@@ -65,22 +69,49 @@ Hiện tại quản lý qua **Supabase Table Editor** (giao diện bảng như E
 
 Nếu sau này cần giao diện quản trị đầy đủ hơn (thêm/sửa dịch vụ ngay trên app), có thể mở rộng trang `/admin`.
 
+## Khu vực cộng đồng (marketplace)
+
+Ngoài dịch vụ chính do bạn quản lý (`services`), web còn có khu vực **cộng đồng** — nơi
+người dùng khác tự đăng ký làm người bán và đăng dịch vụ của họ, tách biệt hoàn toàn về dữ
+liệu (bảng `community_*`) nhưng dùng chung 1 Supabase project, 1 domain.
+
+| Vai trò | Làm được gì |
+|---|---|
+| `customer` (mặc định) | Xem dịch vụ, gửi yêu cầu liên hệ/dùng thử |
+| `seller` | Đăng dịch vụ trong `/nguoi-ban` (cần admin duyệt), xem yêu cầu gửi đến |
+| `admin` | Duyệt/từ chối dịch vụ cộng đồng (ở cuối trang `/admin`), quản lý dịch vụ chính |
+
+**Luồng:** `/cong-dong` (trang giới thiệu) → `/tro-thanh-nguoi-ban` (nâng cấp role thành
+seller) → `/nguoi-ban/dich-vu-moi` (đăng dịch vụ, mặc định `pending`) → admin duyệt tại
+`/admin` → dịch vụ hiện công khai ở `/cong-dong/dich-vu`.
+
+**Không xử lý thanh toán** — form chỉ chuyển tiếp thông tin liên hệ, khách và người bán tự
+thoả thuận và giao dịch bên ngoài nền tảng.
+
 ## Cấu trúc thư mục
 
 ```
 app/
-  page.tsx                  Trang chủ — danh sách dịch vụ + khách hàng
-  dich-vu/[slug]/page.tsx   Chi tiết dịch vụ + bảng giá
-  lien-he/                  Form thu thập yêu cầu tư vấn
-  dang-nhap/page.tsx        Đăng nhập / đăng ký
-  admin/page.tsx            Quản trị — xem danh sách leads
-  Header.tsx                Navigation (hiện menu Quản trị nếu là admin)
+  page.tsx                        Trang chủ — danh sách dịch vụ + khách hàng
+  dich-vu/[slug]/page.tsx         Chi tiết dịch vụ chính + bảng giá
+  lien-he/                        Form thu thập yêu cầu tư vấn
+  dang-nhap/page.tsx              Đăng nhập / đăng ký
+  admin/page.tsx                  Quản trị — xem leads + duyệt dịch vụ cộng đồng
+  Header.tsx                      Navigation (hiện menu theo role)
+
+  cong-dong/page.tsx              Trang giới thiệu khu vực cộng đồng
+  cong-dong/dich-vu/              Danh sách + chi tiết dịch vụ cộng đồng
+  tro-thanh-nguoi-ban/page.tsx    Đăng ký làm người bán (nâng role → seller)
+  nguoi-ban/page.tsx              Kênh người bán — dịch vụ của tôi + yêu cầu gửi đến
+  nguoi-ban/dich-vu-moi/page.tsx  Form đăng dịch vụ mới (status=pending)
+
 lib/
   supabase/client.ts        Supabase client cho Client Component
   supabase/server.ts        Supabase client cho Server Component
   types.ts                  TypeScript types khớp với DB schema
-proxy.ts                    Refresh session + chặn /admin nếu chưa đăng nhập
-supabase/schema.sql         Database schema + RLS policies
+proxy.ts                    Refresh session + chặn /admin, /nguoi-ban nếu chưa đăng nhập
+supabase/schema.sql             Database schema chính + RLS policies
+supabase/merge-marketplace.sql  Schema khu vực cộng đồng (community_*) + RLS policies
 ```
 
 ## Lưu ý về bảo mật
@@ -90,3 +121,7 @@ supabase/schema.sql         Database schema + RLS policies
   - Khách chỉ đọc được nội dung `is_published = true`
   - Chỉ user có `role = 'admin'` mới sửa/xoá được dữ liệu
   - Ai cũng gửi được lead, nhưng chỉ admin đọc được danh sách
+- Với khu vực cộng đồng: seller chỉ sửa được dữ liệu của chính mình và **không có cách nào
+  tự đổi `status` của listing** — RLS ở `merge-marketplace.sql` chỉ cho phép seller cập nhật
+  dòng của mình, nhưng chỉ admin mới có quyền chuyển `pending` → `approved`/`rejected` (thực
+  thi qua policy `community_listings_update_own_or_admin` kết hợp kiểm tra ở tầng ứng dụng)

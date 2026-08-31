@@ -30,13 +30,21 @@ export default async function HeaderAuth() {
     .select('role')
     .eq('id', user.id)
     .maybeSingle();
-  const isAdmin = (profile as Pick<Profile, 'role'> | null)?.role === 'admin';
+  const role = (profile as Pick<Profile, 'role'> | null)?.role;
 
   return (
     <>
-      {isAdmin && (
+      {role === 'admin' && (
         <Link href="/admin" className="text-sm font-medium text-blue-600 transition hover:underline">
           Quản trị
+        </Link>
+      )}
+      {role === 'seller' && (
+        <Link
+          href="/nguoi-ban"
+          className="text-sm font-medium text-blue-600 transition hover:underline"
+        >
+          Kênh người bán
         </Link>
       )}
       <span className="hidden text-sm text-slate-500 sm:inline">{user.email}</span>
