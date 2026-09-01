@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import ModerationActions from './ModerationActions';
+import LeadStatusSelect from './LeadStatusSelect';
 import type { CommunityListing, CommunitySellerProfile, Lead, Profile } from '@/lib/types';
 
 export const dynamic = 'force-dynamic'; // admin luôn xem dữ liệu mới nhất, không cache
@@ -50,17 +51,6 @@ export default async function AdminPage() {
     .select('*, community_seller_profiles(display_name, contact_email)')
     .eq('status', 'pending')
     .order('created_at');
-
-  const statusLabel: Record<string, string> = {
-    new: 'Mới',
-    contacted: 'Đã liên hệ',
-    closed: 'Đã đóng',
-  };
-  const statusClass: Record<string, string> = {
-    new: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200',
-    contacted: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200',
-    closed: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
-  };
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
@@ -113,9 +103,7 @@ export default async function AdminPage() {
                     <div className="line-clamp-2">{l.message || '—'}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusClass[l.status]}`}>
-                      {statusLabel[l.status]}
-                    </span>
+                    <LeadStatusSelect leadId={l.id} status={l.status} />
                   </td>
                 </tr>
               ))}
