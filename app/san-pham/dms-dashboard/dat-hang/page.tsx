@@ -29,6 +29,14 @@ export default function OrderDemoPage() {
             <span>⚠️</span>
             <span>Đây là bản demo minh hoạ quy trình — đơn hàng không được lưu lại.</span>
           </div>
+          <div className="mt-4">
+            <Link
+              href="/san-pham/dms-dashboard/van-chuyen"
+              className="inline-block rounded-lg border border-blue-600 px-5 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 dark:hover:bg-blue-950"
+            >
+              Xem demo theo dõi vận chuyển →
+            </Link>
+          </div>
         </div>
       </section>
 
