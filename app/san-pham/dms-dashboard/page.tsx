@@ -28,6 +28,14 @@ export default function DmsDashboardDemoPage() {
             <span>⚠️</span>
             <span>Dữ liệu trong bản demo này là dữ liệu mẫu, minh hoạ cho cách trình bày.</span>
           </div>
+          <div className="mt-4">
+            <Link
+              href="/san-pham/dms-dashboard/dat-hang"
+              className="inline-block rounded-lg border border-blue-600 px-5 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50 dark:hover:bg-blue-950"
+            >
+              Xem demo quy trình đặt hàng →
+            </Link>
+          </div>
         </div>
       </section>
 
