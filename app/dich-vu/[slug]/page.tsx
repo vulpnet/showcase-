@@ -90,7 +90,7 @@ export default async function ServiceDetailPage({
             {/* Nút xem demo — chỉ hiện cho dịch vụ đã có bản demo tương tác dựng sẵn */}
             {s.slug === 'san-pham-dms-logistics' && (
               <Link
-                href="/san-pham/dms-dashboard"
+                href="/san-pham/dms"
                 className="inline-block rounded-lg border border-blue-600 px-6 py-3 font-semibold text-blue-600 transition hover:bg-blue-50 dark:hover:bg-blue-950"
               >
                 Xem demo trực tiếp →

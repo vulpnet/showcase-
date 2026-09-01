@@ -13,8 +13,11 @@ export default function DmsDashboardDemoPage() {
     <div>
       <section className="border-b border-slate-200 bg-gradient-to-b from-blue-50 to-white dark:border-slate-800 dark:from-slate-900 dark:to-slate-950">
         <div className="mx-auto max-w-6xl px-6 py-10">
-          <Link href="/" className="text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400">
-            ← Về trang chủ
+          <Link
+            href="/san-pham/dms"
+            className="text-sm text-slate-500 hover:text-blue-600 dark:text-slate-400"
+          >
+            ← Về trang tổng quan sản phẩm
           </Link>
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             Demo Dashboard DMS/Logistics
